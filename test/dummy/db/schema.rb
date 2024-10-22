@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_07_214021) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_22_153307) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -21,6 +21,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_07_214021) do
     t.integer "count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["action", "name", "tracker_id"], name: "index_billing_usage_counts_on_action_and_name_and_tracker_id", unique: true
     t.index ["tracker_id"], name: "index_billing_usage_counts_on_tracker_id"
   end
 
@@ -28,10 +29,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_07_214021) do
     t.bigint "team_id", null: false
     t.integer "duration", null: false
     t.string "interval", null: false
-    t.jsonb "usage", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "trackable_id"
+    t.string "trackable_type", default: "Team"
     t.index ["team_id"], name: "index_billing_usage_trackers_on_team_id"
+    t.index ["trackable_id", "trackable_type"], name: "idx_on_trackable_id_trackable_type_f3d701ad36"
   end
 
   create_table "teams", force: :cascade do |t|
