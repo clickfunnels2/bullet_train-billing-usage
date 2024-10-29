@@ -52,9 +52,9 @@ module Billing::UsageHelper
     limit << "allowed by your"
     limit << I18n.t("billing/products.#{product_id}.name")
     limit << if interval.nil?
-      "account."
+      "."
     else
-      "account in the current #{duration} #{interval.singularize} period."
+      "in the current #{duration} #{interval.singularize} period."
     end
     limit
   end
