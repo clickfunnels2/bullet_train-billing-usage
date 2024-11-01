@@ -41,7 +41,7 @@ module Billing::UsageHelper
     introduction << broken_limits_model_name(model, count: count)
   end
 
-  def broken_limits_limit(model, limit)
+  def broken_limits_limit(model, limit, name: nil)
     limit_count = limit.dig(:limit, "count")
     duration = limit.dig(:limit, "duration") || 1
     interval = limit.dig(:limit, "interval")
@@ -50,7 +50,7 @@ module Billing::UsageHelper
     limit = [number_with_delimiter(limit_count)]
     limit << broken_limits_model_name(model, count: limit_count)
     limit << "allowed by your"
-    limit << I18n.t("billing/products.#{product_id}.name")
+    limit << I18n.t("billing/products.#{product_id}.name", name: name)
     limit << if interval.nil?
       "."
     else

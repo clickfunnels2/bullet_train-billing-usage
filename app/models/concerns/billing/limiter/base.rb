@@ -2,6 +2,7 @@ module Billing::Limiter::Base
   extend ActiveSupport::Concern
   include ActiveModel::Model
 
+  attr_reader :parent
   def initialize(parent)
     @parent = parent
   end
