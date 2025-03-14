@@ -1,6 +1,6 @@
 class Billing::Usage::Tracker < BulletTrain::Billing::Usage.base_class.constantize
   # e.g. `belongs_to :team`
-  belongs_to BulletTrain::Billing::Usage.parent_association
+  belongs_to :trackable, polymorphic: true
 
   # TODO: This is only here to satify a test in `limiter_test.rb` that is testing a
   # scenario that we belive isn't actualy a valid use-case. That is, people won't be

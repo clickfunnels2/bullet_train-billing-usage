@@ -3,5 +3,6 @@ FactoryBot.define do
     duration { 1 }
     interval { "month" }
     association :team
+    association :trackable, factory: :team
   end
 end

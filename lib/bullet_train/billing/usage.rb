@@ -14,7 +14,7 @@ module BulletTrain
       mattr_accessor :base_class, default: default_for(BulletTrain, :base_class, "ApplicationRecord")
 
       def self.parent_association
-        parent_class.underscore.to_sym
+        parent_class.underscore.tr("/", "_").to_sym
       end
 
       def self.parent_resource
