@@ -26,7 +26,7 @@ class Billing::Usage::Tracker < BulletTrain::Billing::Usage.base_class.constanti
   def cycle_as_needed
     return nil unless needs_cycling?
 
-    send(:trackable).billing_usage_trackers.each(&:cycle)
+    cycle
   end
 
   def cycle
