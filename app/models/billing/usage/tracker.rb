@@ -26,7 +26,12 @@ class Billing::Usage::Tracker < BulletTrain::Billing::Usage.base_class.constanti
   def cycle_as_needed
     return nil unless needs_cycling?
 
-    send(BulletTrain::Billing::Usage.parent_association).billing_usage_trackers.create(duration: duration, interval: interval)
+    cycle
+  end
+
+  def cycle
+    counts.delete_all
+    touch :cycled_at
   end
 
   def needs_cycling?
