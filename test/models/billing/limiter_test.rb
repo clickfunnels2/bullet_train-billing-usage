@@ -70,8 +70,8 @@ class Billing::LimiterTest < ActiveSupport::TestCase
 
   describe "with a stubbed product catalog of a single limit" do
     let(:all_products) { limiter.current_products }
-    let(:limiter) { TestLimiter.new(team) }
     let(:team) { FactoryBot.create(:team) }
+    let(:limiter) { TestLimiter.new(team) }
 
     describe "#broken_hard_limits_for" do
       describe "asking for limits for something that is not limited" do
@@ -89,11 +89,11 @@ class Billing::LimiterTest < ActiveSupport::TestCase
       end
 
       it "returns the broken limits if they are broken" do
-        tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+        tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
         FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 2)
 
         Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
-          assert_equal limiter.broken_hard_limits_for(:create, "Blah"), [
+          assert_equal [
             {action: :create,
              usage: 2,
              limit: {"count" => 2,
@@ -101,7 +101,7 @@ class Billing::LimiterTest < ActiveSupport::TestCase
                      "duration" => 1,
                      "interval" => "month",
                      "product_id" => "basic"}}
-          ]
+          ], limiter.broken_hard_limits_for(:create, "Blah")
         end
       end
 
@@ -120,10 +120,10 @@ class Billing::LimiterTest < ActiveSupport::TestCase
 
         describe "cannot have" do
           it "returns the broken limits" do
-            FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+            FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
 
             Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
-              assert_equal limiter.broken_hard_limits_for(:have, "Billing::Usage::Tracker"), [
+              assert_equal [
                 {action: :have,
                  usage: 1,
                  limit: {"count" => 1,
@@ -131,7 +131,7 @@ class Billing::LimiterTest < ActiveSupport::TestCase
                          "duration" => 1,
                          "interval" => "month",
                          "product_id" => "basic"}}
-              ]
+              ], limiter.broken_hard_limits_for(:have, "Billing::Usage::Tracker")
             end
           end
         end
@@ -139,12 +139,12 @@ class Billing::LimiterTest < ActiveSupport::TestCase
 
       describe "multiple products, that limit the same underlying object" do
         let(:all_products) { limiter.current_products }
-        let(:limiter) { MultipleProductTestLimiter.new(team) }
         let(:team) { FactoryBot.create(:team) }
+        let(:limiter) { MultipleProductTestLimiter.new(team) }
 
         describe "when we are surpassing the lower limit" do
           it "returns an empty array for no broken hard limits" do
-            tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+            tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
             FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 2)
 
             Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
@@ -155,11 +155,11 @@ class Billing::LimiterTest < ActiveSupport::TestCase
 
         describe "when we are surpassing the higher limit" do
           it "returns the broken limit" do
-            tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+            tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
             FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 3)
 
             Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
-              assert_equal limiter.broken_hard_limits_for(:create, "Blah"), [
+              assert_equal [
                 {action: :create,
                  usage: 3,
                  limit: {"count" => 3,
@@ -167,19 +167,19 @@ class Billing::LimiterTest < ActiveSupport::TestCase
                          "duration" => 1,
                          "interval" => "month",
                          "product_id" => "upgrade"}}
-              ]
+              ], limiter.broken_hard_limits_for(:create, "Blah")
             end
           end
         end
 
         describe "one limit has a nil count (unlimited)" do
           let(:all_products) { limiter.current_products }
-          let(:limiter) { MultipleProductWithUnlimitedTestLimiter.new(team) }
           let(:team) { FactoryBot.create(:team) }
+          let(:limiter) { MultipleProductWithUnlimitedTestLimiter.new(team) }
 
           describe "when we are surpassing the lower limit by a lot" do
             it "returns an empty array for no broken hard limits" do
-              tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+              tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
               FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 5)
 
               Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
@@ -208,16 +208,16 @@ class Billing::LimiterTest < ActiveSupport::TestCase
       end
 
       it "returns the usage count for the specified exhausted limit" do
-        tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+        tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
         FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 3)
 
         Billing::Usage::ProductCatalog.stub(:all_products, all_products) do
-          assert_equal limiter.exhausted_usage_for(limit, :create, "Blah"), 3
+          assert_equal 3, limiter.exhausted_usage_for(limit, :create, "Blah")
         end
       end
 
       it "returns nil if the count does not exceed the limit" do
-        tracker = FactoryBot.create(:tracker, team: team, interval: "month", duration: 1)
+        tracker = FactoryBot.create(:tracker, team_id: team.id, interval: "month", duration: 1)
         FactoryBot.create(:count, tracker: tracker, action: "created", name: "Blah", count: 2)
 
         Billing::Usage::ProductCatalog.stub(:all_products, all_products) do

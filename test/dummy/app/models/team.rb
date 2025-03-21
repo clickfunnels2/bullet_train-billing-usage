@@ -6,4 +6,8 @@ class Team < ApplicationRecord
   def team
     self
   end
+
+  def workspace
+    OpenStruct.new(id: 1)
+  end
 end
