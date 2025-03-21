@@ -35,6 +35,6 @@ class Billing::Usage::Tracker < BulletTrain::Billing::Usage.base_class.constanti
   end
 
   def needs_cycling?
-    created_at + duration.send(interval) < Time.zone.now
+    (cycled_at.presence || created_at) + duration.send(interval) < Time.zone.now
   end
 end
