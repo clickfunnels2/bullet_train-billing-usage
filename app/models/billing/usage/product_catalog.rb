@@ -8,8 +8,7 @@ class Billing::Usage::ProductCatalog
   end
 
   def current_products
-    products = parent.team.billing_subscriptions.active.map(&:included_prices).flatten.map(&:price).compact.map(&:product)
-    products.any? ? products : free_products
+    parent.try(:current_billing_products).presence || team_current_billing_products.presence || free_products
   end
 
   # e.g. [[1, "day"], [5, "minutes"]]
@@ -29,4 +28,10 @@ class Billing::Usage::ProductCatalog
   protected
 
   attr_reader :parent
+
+  private
+
+  def team_current_billing_products
+    parent.team.billing_subscriptions.active.map(&:included_prices).flatten.map(&:price).compact.map(&:product)
+  end
 end
